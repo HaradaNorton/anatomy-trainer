@@ -2,8 +2,16 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Тренажёр по анатомии</title>
+<!-- Установка на экран «Домой»: после этого тренажёр работает БЕЗ интернета -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2f5d8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Анатомия">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
 :root {
   color-scheme: light;  /* не давать телефону в ночном режиме перекрашивать страницу */
@@ -249,6 +257,19 @@ function screenHome() {
     add(hint, r);
   }
   add(app, hint);
+
+  // Подсказка про офлайн — только в браузере по ссылке и пока не установлено на «Домой».
+  const installed = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches
+                    || window.navigator.standalone === true;
+  if (location.protocol.indexOf("http") === 0 && !installed) {
+    const off = el("div", "setkey");
+    off.innerHTML = "<b>Чтобы работало без интернета.</b> " +
+      "На iPhone: кнопка «Поделиться» внизу Safari → <b>«На экран «Домой»</b> → «Добавить». " +
+      "На Android: меню браузера <b>⋮ → «Установить приложение»</b>. " +
+      "После этого тренажёр открывается с экрана телефона и работает офлайн — " +
+      "вопросы и ответы хранятся прямо в нём.";
+    add(app, off);
+  }
 }
 
 // ---------- экран прохождения ----------
@@ -631,6 +652,15 @@ try {
   screenHome();
 } catch (e) {
   fatal((e && e.message) || e);
+}
+
+// Офлайн-режим: service worker кеширует страницу, и после первого открытия
+// тренажёр работает без интернета. Работает только по http(s) — при открытии
+// файла с диска (file://) просто пропускаем, там интернет и не нужен.
+if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
 }
 </script>
 </body>
