@@ -1,7 +1,7 @@
 // Service worker: кеширует страницу целиком, чтобы тренажёр открывался БЕЗ интернета.
 // Вся страница самодостаточна (вопросы вшиты внутрь), поэтому кешировать нужно её одну.
 // Версия меняется при каждой публикации — иначе телефон покажет старые вопросы.
-const CACHE = 'anatomy-trainer-v3';
+const CACHE = 'anatomy-trainer-v4';
 const FILES = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', function (e) {
